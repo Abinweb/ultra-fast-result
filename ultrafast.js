@@ -502,7 +502,7 @@ function renderResultsFast(results, title, displayMode, maxItems, gridColumns = 
   }
   
   const sectionHtml = `
-    <section style="margin-top: 2rem;">
+    <section class="search-results-section" style="margin-top: 2rem; padding: 0 20%; box-sizing: border-box;">
       <div class="search-results-wrapper ${displayMode === 'List' ? 'list-mode' : ''}" style="
         display: ${displayMode === 'Grid' ? 'grid' : 'block'};
         grid-template-columns: ${displayMode === 'Grid' ? `repeat(${responsiveGridColumns}, 1fr)` : 'none'};
@@ -1162,6 +1162,25 @@ document.addEventListener("DOMContentLoaded", async function () {
         padding: 0.5rem;
         margin-bottom: 0.5rem;
         border-radius: 4px;
+      }
+    }
+    
+    /* Responsive padding for search results */
+    @media (max-width: 1200px) {
+      .search-results-section {
+        padding: 0 15% !important;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .search-results-section {
+        padding: 0 10% !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .search-results-section {
+        padding: 0 5% !important;
       }
     }
     
