@@ -359,14 +359,16 @@ function renderResultsFast(results, title, displayMode, maxItems, gridColumns = 
       const imageUrl = primaryImage.url || primaryImage;
       const imageAlt = primaryImage.alt || titleText;
       contentHtml += `<img src="${imageUrl}" alt="${imageAlt}" style="
-        max-width: 100%;
+        max-width: 200px;
         height: auto;
         border-radius: 4px;
         margin: 0.5rem 0;
         display: block;
         object-fit: cover;
-        max-height: 120px;
-        width: 100%;
+        max-height: 100px;
+        width: auto;
+        float: right;
+        margin-left: 1rem;
       ">`;
     }
     
@@ -439,6 +441,7 @@ function renderResultsFast(results, title, displayMode, maxItems, gridColumns = 
           <div style="
             margin-top: 0.5rem;
             word-wrap: break-word;
+            overflow: hidden;
           ">
             ${contentHtml}
           </div>
@@ -1122,6 +1125,29 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     .list-item a:hover {
       text-decoration: underline;
+    }
+    
+    .list-item img {
+      max-width: 200px !important;
+      max-height: 100px !important;
+      width: auto !important;
+      height: auto !important;
+      float: right;
+      margin-left: 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+    
+    @media (max-width: 768px) {
+      .list-item img {
+        max-width: 150px !important;
+        max-height: 80px !important;
+        float: none;
+        margin-left: 0;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
     }
     
     @media (max-width: 768px) {
