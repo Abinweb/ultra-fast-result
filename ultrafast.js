@@ -707,19 +707,6 @@ function showReadMoreOverlay(item, searchQuery, styles) {
       word-wrap: break-word;
     ">${highlightedTitle}</h2>
     
-    ${allFieldContent.length > 0 ? `
-      <div style="
-        background: #e3f2fd;
-        border: 1px solid #2196f3;
-        border-radius: 6px;
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-        font-size: 14px;
-        color: #1976d2;
-      ">
-        <strong>📄 Displaying content from ${allFieldContent.length} field(s):</strong> ${allFieldContent.map(f => f.field).join(', ')}
-      </div>
-    ` : ''}
     
     ${allImages.map(img => `
       <img src="${img.url || img}" alt="${img.alt || ''}" style="
