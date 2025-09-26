@@ -1,4 +1,3 @@
-
 // Enhanced cache with instant lookup
 const searchCache = new Map();
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
@@ -280,13 +279,18 @@ function renderResultsFast(results, title, displayMode, maxItems, gridColumns = 
     // Use selectedFieldsDisplay if provided, otherwise show all fields
     const fieldsToShow = selectedFieldsDisplay.length > 0 ? selectedFieldsDisplay : Object.keys(item);
     
+    console.log('🔍 Available fields for item:', Object.keys(item));
+    console.log('🔍 Selected fields to display:', fieldsToShow);
+    
     // Extract content from selected fields
     for (const field of fieldsToShow) {
       if (item[field] && typeof item[field] === 'string' && item[field].trim()) {
         const cleanContent = item[field].replace(/<[^>]*>/g, ''); // Strip HTML
+        console.log(`📝 Field "${field}" content length:`, cleanContent.length);
         if (cleanContent.length > 20) {
           contentSnippet = extractContentSnippet(cleanContent, searchQuery, 150);
           fullContent = cleanContent;
+          console.log(`✅ Using content from field: ${field}`);
           break;
         }
       }
@@ -336,19 +340,18 @@ function renderResultsFast(results, title, displayMode, maxItems, gridColumns = 
         position: relative;
       ">${highlightedContent}</div>`;
       
-      // Add read more button if content is long
-      if (fullContent.length > 200) {
-        contentHtml += `<button class="read-more-btn" data-item-index="${index}" style="
-          background: #0073e6;
-          color: white;
-          border: none;
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          cursor: pointer;
-          margin-top: 0.5rem;
-        ">Read More</button>`;
-      }
+      // Always add read more button for debugging and functionality
+      contentHtml += `<button class="read-more-btn" data-item-index="${index}" style="
+        background: #0073e6;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        display: inline-block;
+      ">Read More</button>`;
     }
     
     // Add primary image if available
@@ -518,12 +521,15 @@ function renderResultsFast(results, title, displayMode, maxItems, gridColumns = 
     
     // Add read more overlay functionality
     const readMoreButtons = container.querySelectorAll('.read-more-btn');
-    readMoreButtons.forEach(btn => {
+    console.log('🔍 Found read more buttons:', readMoreButtons.length);
+    
+    readMoreButtons.forEach((btn, btnIndex) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         const itemIndex = parseInt(btn.getAttribute('data-item-index'));
         const item = pagedResults[itemIndex];
+        console.log('🔍 Read more clicked for item:', itemIndex, item);
         showReadMoreOverlay(item, searchQuery, styles);
       });
     });
@@ -555,6 +561,8 @@ function renderResultsFast(results, title, displayMode, maxItems, gridColumns = 
 
 // Read more overlay function
 function showReadMoreOverlay(item, searchQuery, styles) {
+  console.log('🔍 Opening overlay for item:', item);
+  
   // Remove existing overlay if any
   const existingOverlay = document.getElementById('read-more-overlay');
   if (existingOverlay) {
@@ -608,6 +616,13 @@ function showReadMoreOverlay(item, searchQuery, styles) {
   
   const highlightedTitle = highlightKeywords(titleText, searchQuery);
   const highlightedContent = highlightKeywords(fullContent, searchQuery);
+  
+  console.log('🔍 Overlay content:', {
+    title: titleText,
+    fullContent: fullContent.substring(0, 100) + '...',
+    contentLength: fullContent.length,
+    images: allImages.length
+  });
   
   const {
     titleFontSize = "16px",
@@ -1238,6 +1253,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       const params = new URLSearchParams(window.location.search);
       query = params.get('q')?.trim() || '';
       console.log('🚀 Query from URL params:', query);
+      
+      // DON'T overwrite the input field - just use the query for search
+      // The input field should remain independent for live suggestions
     }
 
     if (!query) return;
