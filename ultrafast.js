@@ -574,23 +574,36 @@ function showReadMoreOverlay(item, searchQuery, styles) {
     ? (item.publishedPath || item.slug || "#")
     : (item.detailUrl || "#");
   
-  // Get full content from selected fields
+  // Get full content from ALL selected fields
   let fullContent = '';
   const selectedFieldsDisplay = JSON.parse(document.querySelector('#search-config')?.getAttribute('data-selected-fields-display') || '[]');
   const fieldsToShow = selectedFieldsDisplay.length > 0 ? selectedFieldsDisplay : Object.keys(item);
+  
+  console.log('🔍 Overlay - Selected fields to display:', fieldsToShow);
+  
+  // Collect content from ALL selected fields
+  const allFieldContent = [];
   
   for (const field of fieldsToShow) {
     if (item[field] && typeof item[field] === 'string' && item[field].trim()) {
       const cleanContent = item[field].replace(/<[^>]*>/g, '');
       if (cleanContent.length > 20) {
-        fullContent = cleanContent;
-        break;
+        allFieldContent.push({
+          field: field,
+          content: cleanContent
+        });
+        console.log(`📝 Overlay - Found content in field "${field}":`, cleanContent.substring(0, 100) + '...');
       }
     }
   }
   
-  // Fallback to any text field
-  if (!fullContent) {
+  // Combine all field content with better formatting
+  if (allFieldContent.length > 0) {
+    fullContent = allFieldContent.map(fieldData => 
+      `📋 ${fieldData.field.toUpperCase()}\n${'='.repeat(fieldData.field.length + 4)}\n\n${fieldData.content}`
+    ).join('\n\n' + '─'.repeat(50) + '\n\n');
+  } else {
+    // Fallback to any text field
     for (const [key, value] of Object.entries(item)) {
       if (typeof value === 'string' && value.length > 20 && !['name', 'title', 'slug', 'url', 'id'].includes(key)) {
         fullContent = value.replace(/<[^>]*>/g, '');
@@ -694,6 +707,20 @@ function showReadMoreOverlay(item, searchQuery, styles) {
       word-wrap: break-word;
     ">${highlightedTitle}</h2>
     
+    ${allFieldContent.length > 0 ? `
+      <div style="
+        background: #e3f2fd;
+        border: 1px solid #2196f3;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        font-size: 14px;
+        color: #1976d2;
+      ">
+        <strong>📄 Displaying content from ${allFieldContent.length} field(s):</strong> ${allFieldContent.map(f => f.field).join(', ')}
+      </div>
+    ` : ''}
+    
     ${allImages.map(img => `
       <img src="${img.url || img}" alt="${img.alt || ''}" style="
         max-width: 100%;
@@ -713,6 +740,12 @@ function showReadMoreOverlay(item, searchQuery, styles) {
       line-height: 1.6;
       word-wrap: break-word;
       white-space: pre-wrap;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
     ">${highlightedContent}</div>
     
     <div style="margin-top: 2rem; text-align: center;">
