@@ -502,7 +502,7 @@ function renderResultsFast(results, title, displayMode, maxItems, gridColumns = 
   }
   
   const sectionHtml = `
-    <section class="search-results-section" style="margin-top: 2rem; padding: 0 20%; box-sizing: border-box;">
+    <section class="search-results-section ${displayMode === 'Grid' ? 'grid-mode' : 'list-mode'}" style="margin-top: 2rem; padding: 0 ${displayMode === 'Grid' ? '5%' : '20%'}; box-sizing: border-box;">
       <div class="search-results-wrapper ${displayMode === 'List' ? 'list-mode' : ''}" style="
         display: ${displayMode === 'Grid' ? 'grid' : 'block'};
         grid-template-columns: ${displayMode === 'Grid' ? `repeat(${responsiveGridColumns}, 1fr)` : 'none'};
@@ -1166,14 +1166,28 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
     
     /* Responsive padding for search results */
+    .search-results-section.grid-mode {
+      padding: 0 5% !important;
+    }
+    
+    .search-results-section.list-mode {
+      padding: 0 20% !important;
+    }
+    
     @media (max-width: 1200px) {
-      .search-results-section {
+      .search-results-section.grid-mode {
+        padding: 0 3% !important;
+      }
+      .search-results-section.list-mode {
         padding: 0 15% !important;
       }
     }
     
     @media (max-width: 768px) {
-      .search-results-section {
+      .search-results-section.grid-mode {
+        padding: 0 2% !important;
+      }
+      .search-results-section.list-mode {
         padding: 0 10% !important;
       }
     }
