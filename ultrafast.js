@@ -1013,6 +1013,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     .searchsuggestionbox .suggestion-item:hover {
       background-color: #eee;
     }
+    .searchsuggestionbox .suggestion-item.active {
+      background-color: #e6f0ff;
+    }
+    .searchsuggestionbox .suggestion-item:focus {
+      outline: none;
+      background-color: #e6f0ff;
+    }
     
     .search-results-wrapper {
       display: grid;
@@ -1629,7 +1636,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Keyboard navigation on input
   input.addEventListener('keydown', (e) => {
-    const isOpen = suggestionBox.style.display === 'block' && suggestionBox.childElementCount > 0;
+    const isOpen = (() => {
+      try {
+        const cs = window.getComputedStyle(suggestionBox);
+        return cs.display !== 'none' && suggestionBox.childElementCount > 0;
+      } catch { return false; }
+    })();
     if (!isOpen) return;
 
     if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
