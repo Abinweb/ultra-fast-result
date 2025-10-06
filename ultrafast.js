@@ -39,6 +39,39 @@ function loadFontsAsync() {
   document.head.appendChild(fontLink);
 }
 
+// Load a custom fonts stylesheet link (e.g., Google Fonts) if provided
+function loadCustomFontsFromLink(link) {
+  if (!link || typeof link !== 'string') return;
+  try {
+    // Avoid duplicates
+    if (document.querySelector(`link[href="${link}"]`)) return;
+
+    // Preconnects for Google Fonts if applicable
+    if (link.includes('fonts.googleapis.com')) {
+      if (!document.querySelector('link[href="https://fonts.googleapis.com"]')) {
+        const pre1 = document.createElement('link');
+        pre1.rel = 'preconnect';
+        pre1.href = 'https://fonts.googleapis.com';
+        document.head.appendChild(pre1);
+      }
+      if (!document.querySelector('link[href="https://fonts.gstatic.com"]')) {
+        const pre2 = document.createElement('link');
+        pre2.rel = 'preconnect';
+        pre2.href = 'https://fonts.gstatic.com';
+        pre2.crossOrigin = 'anonymous';
+        document.head.appendChild(pre2);
+      }
+    }
+
+    const linkEl = document.createElement('link');
+    linkEl.rel = 'stylesheet';
+    linkEl.href = link;
+    document.head.appendChild(linkEl);
+  } catch (e) {
+    console.warn('Failed to load custom fonts link:', e);
+  }
+}
+
 // Optimized API requests
 let currentSearchController = null;
 
@@ -835,6 +868,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (!searchConfigDiv) {
     console.error("'search-config' div not found.");
     return;
+  }
+
+  // Optional: load a custom fonts stylesheet supplied by the app
+  const customFontsLink = searchConfigDiv.getAttribute('data-google-fonts-link') || searchConfigDiv.getAttribute('data-custom-fonts-link');
+  if (customFontsLink) {
+    loadCustomFontsFromLink(customFontsLink);
   }
 
   const selectedCollections = JSON.parse(searchConfigDiv.getAttribute('data-selected-collections') || '[]');
