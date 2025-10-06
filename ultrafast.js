@@ -1298,6 +1298,39 @@ document.addEventListener("DOMContentLoaded", async function () {
     input.parentNode.style.position = "relative";
     input.parentNode.appendChild(suggestionBox);
   }
+  suggestionBox.setAttribute('role', 'listbox');
+
+  // Keyboard navigation state for suggestions
+  let activeSuggestionIndex = -1;
+
+  function clearActiveSuggestion() {
+    const items = suggestionBox.querySelectorAll('.suggestion-item');
+    items.forEach(el => el.classList.remove('active'));
+  }
+
+  function setActiveSuggestion(index) {
+    const items = suggestionBox.querySelectorAll('.suggestion-item');
+    if (items.length === 0) return;
+    activeSuggestionIndex = ((index % items.length) + items.length) % items.length; // wrap
+    clearActiveSuggestion();
+    const active = items[activeSuggestionIndex];
+    if (active) {
+      active.classList.add('active');
+      active.setAttribute('aria-selected', 'true');
+      active.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function selectActiveSuggestion() {
+    const items = suggestionBox.querySelectorAll('.suggestion-item');
+    const active = items[activeSuggestionIndex];
+    if (!active) return;
+    input.value = active.textContent || '';
+    suggestionBox.style.display = "none";
+    suggestionBox.innerHTML = "";
+    activeSuggestionIndex = -1;
+    performSearchFast();
+  }
 
   // Suggestion handling (LIVE SUGGESTIONS ONLY)
   input.addEventListener("input", async () => {
@@ -1321,10 +1354,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (data.suggestions && data.suggestions.length > 0) {
         suggestionBox.style.display = "block";
         suggestionBox.innerHTML = data.suggestions
-          .map(s => {
+          .map((s, i) => {
             const clean = sanitizeText(s);
             const titled = toTitleCase(clean);
-            return `<div class="suggestion-item">${titled}</div>`;
+            return `<div class="suggestion-item" role="option" aria-selected="false" tabindex="-1" data-index="${i}">${titled}</div>`;
           })
           .join("");
 
@@ -1334,7 +1367,13 @@ document.addEventListener("DOMContentLoaded", async function () {
             suggestionBox.style.display = "none";
             performSearchFast();
           });
+          item.addEventListener('mousemove', () => {
+            const idx = parseInt(item.getAttribute('data-index'));
+            if (!isNaN(idx)) setActiveSuggestion(idx);
+          });
         });
+        // reset active index each time we render
+        activeSuggestionIndex = -1;
       } else {
         suggestionBox.style.display = "none";
         suggestionBox.innerHTML = "";
@@ -1585,6 +1624,29 @@ document.addEventListener("DOMContentLoaded", async function () {
     // and there are no URL parameters indicating a results page
     if (query === '' && !new URLSearchParams(window.location.search).get('q')) {
       resultsContainer.innerHTML = "";
+    }
+  });
+
+  // Keyboard navigation on input
+  input.addEventListener('keydown', (e) => {
+    const isOpen = suggestionBox.style.display === 'block' && suggestionBox.childElementCount > 0;
+    if (!isOpen) return;
+
+    if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
+      e.preventDefault();
+      setActiveSuggestion(activeSuggestionIndex + 1);
+    } else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
+      e.preventDefault();
+      setActiveSuggestion(activeSuggestionIndex === -1 ? suggestionBox.childElementCount - 1 : activeSuggestionIndex - 1);
+    } else if (e.key === 'Enter') {
+      if (activeSuggestionIndex >= 0) {
+        e.preventDefault();
+        selectActiveSuggestion();
+      }
+    } else if (e.key === 'Escape') {
+      suggestionBox.style.display = 'none';
+      suggestionBox.innerHTML = '';
+      activeSuggestionIndex = -1;
     }
   });
 
