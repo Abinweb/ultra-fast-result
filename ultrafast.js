@@ -1675,11 +1675,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (query) {
         console.log('🔍 Search button clicked for:', query);
         
-        // Show loading state on button
-        const originalText = searchButton.textContent;
-        searchButton.textContent = 'Searching...';
-        searchButton.disabled = true;
-        
         // Check if we have cached results for instant display
         const cachedResults = getCachedResults(query, selectedOption);
         if (cachedResults) {
