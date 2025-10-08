@@ -959,7 +959,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     iconContainer.style.display = "";
     iconContainer.addEventListener("click", () => {
       form.style.display = "";
-      iconContainer.style.display = "none";
       input.focus();
     });
   } else {
